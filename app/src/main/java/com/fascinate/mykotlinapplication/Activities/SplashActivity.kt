@@ -1,9 +1,10 @@
-package com.fascinate.mykotlinapplication
+package com.fascinate.mykotlinapplication.Activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.WindowManager
+import com.fascinate.mykotlinapplication.R
 import java.util.*
 import kotlin.concurrent.schedule
 

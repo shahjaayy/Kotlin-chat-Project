@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "945196856665",
+    "project_id": "my-chat-app-kotlin",
+    "storage_bucket": "my-chat-app-kotlin.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945196856665:android:11dcb9ee1a8772c57dc848",
+        "android_client_info": {
+          "package_name": "com.fascinate.mykotlinapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "945196856665-rl0als0b1crli6og54iuh9ebv600j380.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbu9UhWdXGef6CD3KLXrKcU0heNdmRGec"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "945196856665-rl0als0b1crli6og54iuh9ebv600j380.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
