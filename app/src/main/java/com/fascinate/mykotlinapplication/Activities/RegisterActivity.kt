@@ -2,16 +2,16 @@ package com.fascinate.mykotlinapplication.Activities
 
 import android.content.Intent
 import android.content.IntentSender
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import com.fascinate.mykotlinapplication.BuildConfig
-import com.fascinate.mykotlinapplication.SingletonClass
+import com.fascinate.mykotlinapplication.*
+import com.fascinate.mykotlinapplication.ObjectClasses.CheckPermission
 import com.fascinate.mykotlinapplication.databinding.ActivityRegisterBinding
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -22,7 +22,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity(), GetLocationInterface {
 
     private lateinit var binding: ActivityRegisterBinding
 
@@ -34,16 +34,15 @@ class RegisterActivity : AppCompatActivity() {
         try {
             val credential = oneTapClient?.getSignInCredentialFromIntent(result.data)
             val idToken = credential?.googleIdToken
+            val id = credential?.id
             when {
-                idToken != null -> {
+                idToken != null && id != null -> {
                     // Got an ID token from Google. Use it to authenticate
                     //abu with your backend.
 
-                    SingletonClass.setUser(idToken)
+                    binding.progressBar.visibility = View.VISIBLE
 
-                    Toast.makeText(this, "Token found...\n"+ SingletonClass.getUser(), Toast.LENGTH_SHORT).show()
-
-                    addToFirebase(idToken)
+                    MyLocation.getLastLatLng(this, this, idToken, id)
 
                 }
                 else -> {
@@ -73,28 +72,13 @@ class RegisterActivity : AppCompatActivity() {
             }
         }}
 
-    private fun addToFirebase(token: String) {
-        binding.progressBar.visibility = View.VISIBLE
-
-        val myRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
-        myRef.push().setValue(token).addOnSuccessListener {
-            Toast.makeText(this, "Successfully login...", Toast.LENGTH_SHORT).show()
-
-            binding.progressBar.visibility = View.GONE
-
-            intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
-        }
-            .addOnFailureListener{
-                Toast.makeText(this, "Network error... Please Check", Toast.LENGTH_SHORT).show()
-            }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        CheckPermission.checkPermission(this@RegisterActivity)
 
         oneTapClient = Identity.getSignInClient(this)
         signUpRequest = BeginSignInRequest.builder()
@@ -144,6 +128,10 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
+    private fun guestLogin() {
+
+    }
+
     private fun displaySignUp() {
         oneTapClient?.beginSignIn(signUpRequest!!)
             ?.addOnSuccessListener(this) { result ->
@@ -161,7 +149,36 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 
-    private fun guestLogin() {
+    private fun addToFirebase(location: Location, idToken: String, id: String) {
 
+        val newID = id.replace(".", "").toString()
+
+        val myRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
+        val data = UserInformation(idToken, location.latitude, location.longitude, id)
+        myRef.child(newID).setValue(data).addOnSuccessListener {
+            Toast.makeText(this, "Successfully login...", Toast.LENGTH_SHORT).show()
+
+            binding.progressBar.visibility = View.GONE
+
+            intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+        }
+            .addOnFailureListener{
+                Toast.makeText(this, "Network error... Please Check", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    override fun getLatLng(location: Location, idToken: String, id: String) {
+        addToFirebase(location, idToken, id)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        CheckPermission.handlePermissionsResult(requestCode, permissions, grantResults, applicationContext)
     }
 }
