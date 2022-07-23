@@ -12,6 +12,7 @@ import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.fascinate.mykotlinapplication.*
 import com.fascinate.mykotlinapplication.ObjectClasses.CheckPermission
+import com.fascinate.mykotlinapplication.ObjectClasses.SingletonClass
 import com.fascinate.mykotlinapplication.databinding.ActivityRegisterBinding
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -162,6 +163,7 @@ class RegisterActivity : AppCompatActivity(), GetLocationInterface {
 
             intent = Intent(this, HomeActivity::class.java)
             startActivity(intent)
+            finish()
         }
             .addOnFailureListener{
                 Toast.makeText(this, "Network error... Please Check", Toast.LENGTH_SHORT).show()
@@ -172,13 +174,21 @@ class RegisterActivity : AppCompatActivity(), GetLocationInterface {
         addToFirebase(location, idToken, id)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         CheckPermission.handlePermissionsResult(requestCode, permissions, grantResults, applicationContext)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (SingletonClass.checkSession(this)!!)
+        {
+            intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
+
     }
 }

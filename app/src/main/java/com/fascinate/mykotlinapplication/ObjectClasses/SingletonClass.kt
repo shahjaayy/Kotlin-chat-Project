@@ -1,34 +1,34 @@
 package com.fascinate.mykotlinapplication.ObjectClasses
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.location.Location
+import android.provider.Settings.Secure
+
 
 object SingletonClass {
-    private var userToken: String? = null
-    private var location: Location? = null
-    private var id: String? = null
 
-    fun setUser(token: String?){
-        userToken = token
+    fun checkSession(context: Context): Boolean? {
+        val deviceID = Secure.getString(context.contentResolver, Secure.ANDROID_ID)
+        val pref: SharedPreferences = context.getSharedPreferences(deviceID, Context.MODE_PRIVATE)
+
+        return pref.getBoolean("isLoggedIn", false)
     }
 
-    fun setID(id: String?){
-        this.id = id
+    @SuppressLint("HardwareIds")
+    fun manageSession(token: String?, location: Location?, id: String, context: Context){
+        val deviceID = Secure.getString(context.contentResolver, Secure.ANDROID_ID)
+        val pref: SharedPreferences = context.getSharedPreferences(deviceID, Context.MODE_PRIVATE)
+        val editor = pref.edit()
+        editor.putString("userToken", token)
+        editor.putString("latitude", location!!.latitude.toString())
+        editor.putString("longitude", location.longitude.toString())
+        editor.putString("id", id)
+        editor.putBoolean("isLoggedIn", true)
+        editor.apply()
     }
 
-    fun setLocation(location: Location?){
-        location?.latitude = location!!.latitude
-        location.longitude = location.longitude
-    }
 
-    fun getLocation(): Location{
-        return location!!
-    }
 
-    fun getUser(): String{
-        return userToken!!
-    }
-
-    fun getID(): String{
-        return id!!
-    }
 }

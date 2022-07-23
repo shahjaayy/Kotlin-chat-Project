@@ -13,11 +13,11 @@ object NoGpsAlert {
         alertDialog.setTitle("GPS Settings")
         alertDialog.setMessage("GPS Off!. Do you want to turn it on?")
 
-        alertDialog.setPositiveButton("Settings") { dialog, which ->
+        alertDialog.setPositiveButton("Settings") { _, _ ->
             val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
             mContext.startActivity(intent)
         }
-        alertDialog.setNegativeButton("Dismiss") { dialog, which -> dialog.dismiss() }
+        alertDialog.setNegativeButton("Dismiss") { dialog,   which -> dialog.dismiss() }
         alertDialog.show()
     }
 

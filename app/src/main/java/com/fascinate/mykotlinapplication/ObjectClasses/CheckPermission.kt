@@ -21,7 +21,7 @@ object CheckPermission {
         else
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
                 //Permission granted and GPS ON
-                Toast.makeText(myContext, "Permission Granted...", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(myContext, "Permission Granted...", Toast.LENGTH_SHORT).show()
             else
                 //Permission granted and GPS Off
                 NoGpsAlert.showSettingsAlert(myContext)

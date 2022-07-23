@@ -22,13 +22,13 @@ class MyLocation {
         ){
             val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             fusedLocationClient.lastLocation
-                .addOnCompleteListener(OnCompleteListener<Location?> { task ->
+                .addOnCompleteListener { task ->
                     val location = task.result
                     if (location != null) {
                         getLocationInterface.getLatLng(location, idToken, id)
-                        SingletonClass.setLocation(location)
-                        SingletonClass.setUser(idToken)
-                        SingletonClass.setID(id)
+
+                        SingletonClass.manageSession(idToken, location, id, context)
+
                     } else {
                         val locationRequest = LocationRequest()
                             .setInterval(1000)
@@ -39,9 +39,8 @@ class MyLocation {
                             override fun onLocationResult(locationResult: LocationResult) {
                                 val location1 = locationResult.lastLocation
                                 getLocationInterface.getLatLng(location1, idToken, id)
-                                SingletonClass.setLocation(location)
-                                SingletonClass.setUser(idToken)
-                                SingletonClass.setID(id)
+
+                                SingletonClass.manageSession(idToken, location, id, context)
                             }
                         }
                         Looper.myLooper()?.let {
@@ -52,7 +51,7 @@ class MyLocation {
                             )
                         }
                     }
-                })
+                }
         }
     }
 }
