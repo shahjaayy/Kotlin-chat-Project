@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.location.Location
 import android.provider.Settings.Secure
+import android.util.Log
+import java.lang.Exception
 
 
 object SingletonClass {
@@ -21,12 +23,17 @@ object SingletonClass {
         val deviceID = Secure.getString(context.contentResolver, Secure.ANDROID_ID)
         val pref: SharedPreferences = context.getSharedPreferences(deviceID, Context.MODE_PRIVATE)
         val editor = pref.edit()
-        editor.putString("userToken", token)
-        editor.putString("latitude", location!!.latitude.toString())
-        editor.putString("longitude", location.longitude.toString())
-        editor.putString("id", id)
-        editor.putBoolean("isLoggedIn", true)
-        editor.apply()
+        try {
+            editor.putString("userToken", token)
+            editor.putString("latitude", location!!.latitude.toString())
+            editor.putString("longitude", location.longitude.toString())
+            editor.putString("id", id)
+            editor.putBoolean("isLoggedIn", true)
+            editor.apply()
+        }catch (e: Exception)
+        {
+            e.message?.let { Log.e("SingletonCLassError", it) }
+        }
     }
 
 

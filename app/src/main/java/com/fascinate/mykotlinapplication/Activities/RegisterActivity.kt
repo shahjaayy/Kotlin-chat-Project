@@ -5,13 +5,17 @@ import android.content.IntentSender
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import com.fascinate.mykotlinapplication.*
+import com.fascinate.mykotlinapplication.DataClasses.IsLoggedIn
+import com.fascinate.mykotlinapplication.DataClasses.UserInformation
 import com.fascinate.mykotlinapplication.ObjectClasses.CheckPermission
+import com.fascinate.mykotlinapplication.ObjectClasses.IfAnyOneLoggedIn
 import com.fascinate.mykotlinapplication.ObjectClasses.SingletonClass
 import com.fascinate.mykotlinapplication.databinding.ActivityRegisterBinding
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
@@ -23,13 +27,16 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class RegisterActivity : AppCompatActivity(), GetLocationInterface {
+class RegisterActivity : AppCompatActivity(), GetLocationInterface, IfAnyOtherLoggedInInterface {
 
     private lateinit var binding: ActivityRegisterBinding
 
     private var oneTapClient: SignInClient? = null
     private var signUpRequest: BeginSignInRequest? = null
     private var signInRequest: BeginSignInRequest? = null
+    private lateinit var deviceID: String
+    private lateinit var idToken: String
+    private lateinit var id: String
 
     private val oneTapResult = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()){ result ->
         try {
@@ -41,10 +48,9 @@ class RegisterActivity : AppCompatActivity(), GetLocationInterface {
                     // Got an ID token from Google. Use it to authenticate
                     //abu with your backend.
 
-                    binding.progressBar.visibility = View.VISIBLE
-
-                    MyLocation.getLastLatLng(this, this, idToken, id)
-
+                    this.idToken = idToken
+                    this.id = id
+                    IfAnyOneLoggedIn.checkNow(this, this)
                 }
                 else -> {
                     // Shouldn't happen.
@@ -78,6 +84,8 @@ class RegisterActivity : AppCompatActivity(), GetLocationInterface {
         binding = ActivityRegisterBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        deviceID = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID)
 
         CheckPermission.checkPermission(this@RegisterActivity)
 
@@ -153,9 +161,9 @@ class RegisterActivity : AppCompatActivity(), GetLocationInterface {
     private fun addToFirebase(location: Location, idToken: String, id: String) {
 
         val newID = id.replace(".", "").toString()
-
         val myRef: DatabaseReference = FirebaseDatabase.getInstance().getReference("Users")
-        val data = UserInformation(idToken, location.latitude, location.longitude, id)
+        val data = UserInformation(idToken, location.latitude, location.longitude, id, IsLoggedIn(deviceId = deviceID, status = true))
+
         myRef.child(newID).setValue(data).addOnSuccessListener {
             Toast.makeText(this, "Successfully login...", Toast.LENGTH_SHORT).show()
 
@@ -190,5 +198,18 @@ class RegisterActivity : AppCompatActivity(), GetLocationInterface {
             finish()
         }
 
+    }
+
+    override fun ifAny(ifAnyDevice: Boolean) {
+        binding.progressBar.visibility = View.VISIBLE
+        if(ifAnyDevice)
+        {
+            Toast.makeText(this, "Already login in other device...", Toast.LENGTH_SHORT).show()
+            binding.progressBar.visibility = View.GONE
+        }
+        else
+        {
+            MyLocation.getLastLatLng(this, this, idToken, id)
+        }
     }
 }

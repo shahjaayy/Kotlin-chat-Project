@@ -4,4 +4,6 @@
     <string name="register_guest_text">Login as Guest...</string>
     <string name="register_user_text">Login as Gmail...</string>
     <string name="btn_logout_txt">Logout</string>
+    <string name="weather_home_txt">Check\nWeather</string>
+
 </resources>

@@ -17,6 +17,14 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        binding.weatherCardView.setOnClickListener{
+            showWeather();
+        }
+    }
+
+    private fun showWeather() {
+        
     }
 
     fun logout(view: View) {

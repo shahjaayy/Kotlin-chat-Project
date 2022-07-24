@@ -38,7 +38,7 @@ class MyLocation {
                         val locationCallback: LocationCallback = object : LocationCallback() {
                             override fun onLocationResult(locationResult: LocationResult) {
                                 val location1 = locationResult.lastLocation
-                                getLocationInterface.getLatLng(location1, idToken, id)
+                                getLocationInterface.getLatLng(location1!!, idToken, id)
 
                                 SingletonClass.manageSession(idToken, location, id, context)
                             }
